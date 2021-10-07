@@ -2,8 +2,10 @@
 <ul>
   {% for question in question_list %}
   <li>
-    {% if question.was_published_recently %} [New] {% endif %} {{
-    question.question_text }}
+    <a href="/polls/{{ question.id }}/">
+      {% if question.was_published_recently %} [New] {% endif %}
+      {{question.question_text}}
+    </a>
   </li>
   {% endfor %}
 </ul>
