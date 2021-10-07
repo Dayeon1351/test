@@ -25,3 +25,19 @@ class FunctionalTest(unittest.TestCase):
         self.assertTrue(
             any(li_tag.text == 'choice 2!' for li_tag in li_tags)
         )
+
+    def test_go_to_result_page(self):
+        self.driver.get("http://localhost:8000/polls/1/")
+        a_tag = self.driver.find_element_by_tag_name("a")
+        self.assertIn(a_tag.text, "투표 결과 보기")
+        a_tag.click()
+        self.assertEqual(self.driver.current_url, "http://localhost:8000/polls/1/results/")
+
+        self.assertIn(self.driver.find_element_by_tag_name("h1").text, "What's up?")
+        p_tags = self.driver.find_elements_by_tag_name("ul > p")
+        self.assertTrue(
+            any('Choice:' in p_tag.text for p_tag in p_tags)
+        )
+        self.assertTrue(
+            any('Vote Count:' in p_tag.text for p_tag in p_tags)
+        )

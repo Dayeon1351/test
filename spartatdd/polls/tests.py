@@ -12,8 +12,56 @@ def create_question(question_text, timedelta_from_now):
     question = Question(question_text=question_text, pub_date=time)
     question.save()
     return question
-    
+
+class QuestionResultViewTests(TestCase):
+    def test_future_question(self):
+        """
+        The result view of a question with a pub_date in the future
+        returns a 404 not found.
+        """
+        future_question = create_question(question_text='Future question.',
+                                          timedelta_from_now=datetime.timedelta(days=5))
+        response = self.client.get(f'/polls/{future_question.id}/results/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_past_question(self):
+        """
+        The result view of a question with a pub_date in the past
+        displays the question's text.
+        """
+        past_question = create_question(question_text='Future question.',
+                                        timedelta_from_now=datetime.timedelta(days=-5))
+        response = self.client.get(f'/polls/{past_question.id}/results/')
+        self.assertContains(response, past_question.question_text)
+
+    def test_past_question_with_choices(self):
+        """
+        The result view of a question with a pub_date in the past
+        displays the question's result.
+        """
+        past_question = create_question(question_text='Future question.',
+                                        timedelta_from_now=datetime.timedelta(days=-5))
+        choice1 = Choice(question=past_question, choice_text="choice 1")
+        choice1.save()
+        choice2 = Choice(question=past_question, choice_text="choice 2")
+        choice2.save()
+        response = self.client.get(f'/polls/{past_question.id}/results/')
+
+        self.assertContains(response, f"Choice: {choice1.choice_text}")
+        self.assertContains(response, f"Vote Count: {choice1.votes}")
+        
 class QuestionDetailViewTests(TestCase):
+    def test_has_a_href_link(self):
+        """
+        Questions with a pub_date in the past are displayed on the
+        detail page with a href link to result page.
+        """
+
+        question = create_question(question_text="Recent question.", timedelta_from_now=datetime.timedelta(days=-30))
+        response = self.client.get(f"/polls/{question.id}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'href="/polls/{question.id}/results/"')
+    
     def test_future_question(self):
         """
         The detail view of a question with a pub_date in the future
