@@ -1,7 +1,10 @@
 {% if question_list %}
 <ul>
   {% for question in question_list %}
-  <li>{{ question.question_text }}</li>
+  <li>
+    {% if question.was_published_recently %} [New] {% endif %} {{
+    question.question_text }}
+  </li>
   {% endfor %}
 </ul>
 {% else %}
