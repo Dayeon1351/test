@@ -6,7 +6,7 @@ from django.utils import timezone
 def index(request):
     question_list = Question.objects.all().filter(
         pub_date__lte=timezone.now()
-    )
+    ).order_by('-pub_date')
     context = {'question_list': question_list}
 
     return render(request, 'polls/index.html', context)
